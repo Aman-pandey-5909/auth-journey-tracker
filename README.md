@@ -1,73 +1,149 @@
-# Welcome to your Lovable project
+# SECURITY_AUTH — Cybersecurity Auth Showcase
 
-## Project info
+A cyberpunk-themed web application demonstrating authentication and security features built with React, TypeScript, and Lovable Cloud.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+This project showcases a complete authentication flow with a terminal/hacker aesthetic, including real-time security auditing and session inspection.
 
-**Use Lovable**
+## Auth Flow
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+[ Sign Up ] → [ Email Verification ] → [ Log In ] → [ Security Dashboard ]
 ```
 
-**Edit a file directly in GitHub**
+A visual **Auth Progress Bar** tracks the user's position through the flow on every page.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## Features
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 1. User Sign Up (`/signup`)
+- Email & password registration with display name
+- **Password Strength Meter** — real-time scoring based on:
+  - Minimum 8 characters
+  - Uppercase & lowercase letters
+  - Numbers
+  - Special characters
+- Automatic profile creation via database trigger
 
-## What technologies are used for this project?
+### 2. User Login (`/login`)
+- Email/password authentication
+- Session persistence with auto-refresh tokens
+- Redirects authenticated users away from auth pages
 
-This project is built with:
+### 3. Security Dashboard (`/dashboard`)
+- **User Info Card** — display name, email, session TTL countdown
+- **Security Audit Panel** — real-time checks:
+  | Check | Description |
+  |-------|-------------|
+  | Email Verified | Whether the user's email is confirmed |
+  | Authenticated Session | Token expiry countdown |
+  | Row Level Security | RLS status on database tables |
+  | Auth Provider | Authentication method used |
+  | Last Sign In | Timestamp of most recent login |
+- **JWT Token Preview** — truncated access token display (with security warning)
+- **Session Termination** — secure sign-out
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 4. Landing Page (`/`)
+- Feature overview cards
+- Auto-redirects authenticated users to dashboard
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Security Implementation
 
-## Can I connect a custom domain to my Lovable project?
+### Row Level Security (RLS)
+All database tables enforce RLS policies:
 
-Yes, you can!
+| Policy | Action | Rule |
+|--------|--------|------|
+| View own profile | `SELECT` | `auth.uid() = user_id` |
+| Insert own profile | `INSERT` | `auth.uid() = user_id` |
+| Update own profile | `UPDATE` | `auth.uid() = user_id` |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Authentication
+- Passwords are hashed server-side (never stored in plaintext)
+- JWT tokens with automatic refresh
+- Session expiry tracking
+- Email verification required before login
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Database
+- `profiles` table auto-created on signup via `handle_new_user` trigger
+- Foreign key relationship to auth users with `ON DELETE CASCADE`
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Framework | React 18 + TypeScript |
+| Styling | Tailwind CSS + custom cyber theme |
+| UI Components | shadcn/ui |
+| Routing | React Router v6 |
+| Backend | Lovable Cloud (auth, database, RLS) |
+| State | TanStack React Query |
+| Font | JetBrains Mono / Space Grotesk |
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── AuthProgressBar.tsx    # 3-step auth flow tracker
+│   ├── CyberCard.tsx          # Themed card with neon borders
+│   ├── NavLink.tsx            # Navigation link component
+│   ├── PasswordStrengthMeter.tsx # Real-time password scoring
+│   └── ui/                    # shadcn/ui components
+├── hooks/
+│   ├── useAuth.tsx            # Auth context & provider
+│   └── use-mobile.tsx         # Responsive breakpoint hook
+├── integrations/
+│   └── supabase/              # Auto-generated client & types
+├── pages/
+│   ├── Index.tsx              # Landing page
+│   ├── SignUp.tsx             # Registration form
+│   ├── Login.tsx              # Login form
+│   ├── Dashboard.tsx          # Security dashboard
+│   └── NotFound.tsx           # 404 page
+└── index.css                  # Cyber theme & design tokens
+```
+
+---
+
+## Design System
+
+The app uses a custom **cyber/terminal** theme with HSL-based design tokens:
+
+- **Primary**: Neon green (`142 71% 45%`)
+- **Background**: Deep black (`160 20% 4%`)
+- **Cards**: Dark translucent panels with neon border accents
+- **Animations**: `pulse-neon`, `glow`, `scanline` effects
+- **Grid**: CSS background `cyber-grid` pattern
+
+---
+
+## Routes
+
+| Path | Component | Auth Required |
+|------|-----------|---------------|
+| `/` | Landing | No (redirects if logged in) |
+| `/signup` | Sign Up | No |
+| `/login` | Login | No |
+| `/dashboard` | Security Dashboard | Yes |
+
+---
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start dev server: `npm run dev`
+4. Navigate to `http://localhost:5173`
+
+Or simply open the project in [Lovable](https://lovable.dev) and start building.
